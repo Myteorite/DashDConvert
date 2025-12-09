@@ -4,9 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KullDConvert | PDF to Word</title>
-    <link rel="stylesheet" href="https://raw.githubusercontent.com/Myteorite/DashDConvert/refs/heads/main/public/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg-dark: #0f172a;
+            --text-light: #f8fafc;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; position: relative;
+        }
+        .background-shapes .shape {
+            position: absolute; filter: blur(90px); z-index: -1; border-radius: 50%;
+        }
+        .shape-1 { width: 400px; height: 400px; background: var(--primary); top: -50px; left: -50px; opacity: 0.5; }
+        .shape-2 { width: 300px; height: 300px; background: var(--secondary); bottom: -50px; right: -50px; opacity: 0.5; }
+        
+        .container { width: 100%; max-width: 480px; padding: 20px; z-index: 10; text-align: center; }
+        
+        header h1 {
+            font-size: 2.5rem; margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        header p { color: #94a3b8; margin-bottom: 2rem; }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; padding: 2rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px; padding: 2rem; transition: 0.3s;
+        }
+        .drop-zone.dragover { background: rgba(255, 255, 255, 0.1); border-color: var(--primary); }
+        
+        .icon-container { font-size: 3rem; color: var(--primary); margin-bottom: 1rem; }
+        .browse-btn {
+            display: inline-block; margin-top: 10px; padding: 8px 20px;
+            background: var(--primary); border-radius: 8px; cursor: pointer; transition: 0.3s;
+        }
+        .browse-btn:hover { background: var(--secondary); }
+        
+        .file-info {
+            margin-top: 1.5rem; background: rgba(255, 255, 255, 0.1);
+            padding: 10px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .remove-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.2rem; }
+        .remove-btn:hover { color: #ff4d4d; }
+        
+        .convert-btn {
+            width: 100%; margin-top: 1.5rem; padding: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none; color: white; border-radius: 8px; cursor: pointer;
+            font-weight: 600; transition: 0.2s;
+        }
+        .convert-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .convert-btn:hover:not(:disabled) { transform: scale(1.02); }
+        
+        .loader {
+            width: 24px; height: 24px; border: 3px solid #FFF; border-bottom-color: transparent;
+            border-radius: 50%; animation: rotation 1s linear infinite; margin: 10px auto;
+        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status-container { margin-top: 1rem; }
+        footer { margin-top: 2rem; color: #64748b; font-size: 0.8rem; }
+    </style>
 </head>
 <body>
 
@@ -55,6 +131,98 @@
         </footer>
     </div>
 
-    <script src="https://raw.githubusercontent.com/Myteorite/DashDConvert/refs/heads/main/public/script.js"></script>
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('file-info');
+        const filenameSpan = document.getElementById('filename');
+        const removeBtn = document.getElementById('remove-btn');
+        const convertBtn = document.getElementById('convert-btn');
+        const statusContainer = document.getElementById('status-container');
+        const statusText = document.getElementById('status-text');
+
+        let currentFile = null;
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+
+        dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        function handleFiles(files) {
+            if (files.length > 0 && files[0].type === "application/pdf") {
+                currentFile = files[0];
+                filenameSpan.innerText = currentFile.name;
+                dropZone.style.display = 'none';
+                fileInfo.style.display = 'flex';
+                convertBtn.disabled = false;
+            } else {
+                alert("Hanya file PDF yang diperbolehkan.");
+            }
+        }
+
+        removeBtn.addEventListener('click', () => {
+            currentFile = null;
+            fileInput.value = '';
+            dropZone.style.display = 'block';
+            fileInfo.style.display = 'none';
+            convertBtn.disabled = true;
+            statusContainer.style.display = 'none';
+        });
+
+        convertBtn.addEventListener('click', async () => {
+            if (!currentFile) return;
+
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = 'Sedang Memproses...';
+            statusContainer.style.display = 'block';
+            statusText.innerText = "Mengupload dan Mengonversi...";
+            statusText.style.color = "#f8fafc";
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+
+            try {
+                const response = await fetch('/api/convert', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    statusText.innerText = "Berhasil! Mengunduh...";
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = currentFile.name.replace('.pdf', '.docx');
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    
+                    convertBtn.innerHTML = 'Selesai!';
+                    setTimeout(() => {
+                        convertBtn.innerHTML = 'Konversi Lagi <i class="fa-solid fa-arrow-right"></i>';
+                        convertBtn.disabled = false;
+                    }, 2000);
+                } else {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Gagal konversi');
+                }
+            } catch (error) {
+                console.error(error);
+                statusText.innerText = "Error: " + error.message;
+                statusText.style.color = "#ff4d4d";
+                convertBtn.innerHTML = 'Coba Lagi';
+                convertBtn.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>
