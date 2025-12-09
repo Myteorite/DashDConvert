@@ -1,141 +1,75 @@
-:root {
-    --primary: #6366f1;
-    --secondary: #a855f7;
-    --bg-dark: #0f172a;
-    --glass: rgba(255, 255, 255, 0.05);
-    --border: rgba(255, 255, 255, 0.1);
-    --text-muted: #94a3b8;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-
-body {
-    background-color: var(--bg-dark);
-    color: white;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-}
-
-/* --- SIDEBAR --- */
-.sidebar {
-    width: 320px;
-    background: rgba(15, 23, 42, 0.95);
-    border-right: 1px solid var(--border);
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    z-index: 20;
-    overflow-y: auto;
-}
-
-.logo { 
-    font-size: 1.8rem; font-weight: 600; 
-    background: linear-gradient(to right, #818cf8, #c084fc); 
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-    margin-bottom: 0.5rem;
-}
-
-.control-group { display: flex; flex-direction: column; gap: 0.5rem; }
-.control-group label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
-
-select {
-    padding: 12px; border-radius: 8px; background: var(--glass);
-    border: 1px solid var(--border); color: white; outline: none; cursor: pointer;
-    transition: 0.3s;
-}
-select:hover { border-color: var(--primary); }
-select option { background: #1e293b; }
-
-/* --- HISTORY SECTION --- */
-.history-section {
-    margin-top: auto;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-}
-
-.history-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
-}
-.history-header h4 { font-size: 0.9rem; color: #e2e8f0; }
-.clear-btn { font-size: 0.7rem; color: #ff4d4d; background: none; border: none; cursor: pointer; }
-.clear-btn:hover { text-decoration: underline; }
-
-.history-list {
-    list-style: none;
-    display: flex; flex-direction: column; gap: 0.8rem;
-    max-height: 200px; overflow-y: auto;
-}
-/* Custom Scrollbar */
-.history-list::-webkit-scrollbar { width: 4px; }
-.history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
+/* --- UPDATE BAGIAN HISTORY ITEM --- */
 .history-item {
     background: rgba(255, 255, 255, 0.03);
-    border-radius: 8px; padding: 10px;
-    font-size: 0.8rem; border: 1px solid transparent;
+    border-radius: 8px; 
+    padding: 10px;
+    font-size: 0.8rem; 
+    border: 1px solid transparent;
     transition: 0.2s;
+    
+    /* Tambahan agar tombol ada di kanan */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
-.history-item:hover { border-color: var(--border); background: rgba(255, 255, 255, 0.05); }
-.history-date { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; }
-.history-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; display: block;}
+
+.history-item:hover { 
+    border-color: var(--border); 
+    background: rgba(255, 255, 255, 0.05); 
+}
+
+/* Wrapper untuk teks (Kiri) */
+.history-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Agar teks panjang tidak merusak layout */
+}
+
+.history-date { 
+    font-size: 0.65rem; 
+    color: var(--text-muted); 
+    margin-bottom: 2px; 
+}
+
+.history-name { 
+    font-weight: 600; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    max-width: 160px; 
+    display: block;
+}
+
 .history-badge { 
-    display: inline-block; font-size: 0.65rem; padding: 2px 6px; 
-    border-radius: 4px; background: rgba(99, 102, 241, 0.2); color: #818cf8; margin-top: 4px;
+    display: inline-block; 
+    font-size: 0.65rem; 
+    padding: 2px 6px; 
+    border-radius: 4px; 
+    background: rgba(99, 102, 241, 0.2); 
+    color: #818cf8; 
+    margin-top: 4px;
+    width: fit-content;
 }
 
-/* --- MAIN CONTENT --- */
-.main-content {
-    flex: 1; position: relative; display: flex; justify-content: center; align-items: center; padding: 20px;
-}
-.shape { position: absolute; filter: blur(80px); z-index: -1; border-radius: 50%; opacity: 0.4; }
-.shape-1 { width: 400px; height: 400px; background: var(--primary); top: 10%; right: 20%; }
-.shape-2 { width: 300px; height: 300px; background: var(--secondary); bottom: 10%; left: 10%; }
-
-.card {
-    width: 100%; max-width: 600px; background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 24px;
-    padding: 3rem; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-}
-
-.drop-zone {
-    border: 2px dashed rgba(255,255,255,0.2); border-radius: 16px; padding: 3rem 1rem;
-    transition: 0.3s; background: rgba(255,255,255,0.02); margin-top: 1rem;
-}
-.drop-zone.dragover { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); }
-
-.btn-upload {
-    display: inline-block; margin-top: 15px; padding: 10px 25px;
-    background: var(--glass); border: 1px solid var(--primary); color: var(--primary);
-    border-radius: 8px; cursor: pointer; transition: 0.3s;
-}
-.btn-upload:hover { background: var(--primary); color: white; }
-
-.file-preview {
-    display: none; margin-top: 2rem; background: rgba(255,255,255,0.05);
-    padding: 1rem; border-radius: 12px; align-items: center; justify-content: space-between;
+/* Tombol Download Kecil (Kanan) */
+.btn-download-mini {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: 0.3s;
+    flex-shrink: 0; /* Agar tombol tidak gepeng */
 }
 
-.convert-btn {
-    width: 100%; margin-top: 2rem; padding: 16px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    border: none; color: white; font-size: 1.1rem; border-radius: 12px;
-    cursor: pointer; font-weight: 600; transition: 0.2s;
-}
-.convert-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.error-msg { color: #ff4d4d; margin-top: 1rem; font-size: 0.9rem; display: none; }
-
-.loader {
-    display: none; width: 24px; height: 24px; border: 3px solid #FFF; 
-    border-bottom-color: transparent; border-radius: 50%;
-    animation: spin 1s linear infinite; margin: 0 auto;
-}
-@keyframes spin { 100% { transform: rotate(360deg); } }
-
-@media (max-width: 768px) {
-    body { flex-direction: column; height: auto; overflow-y: auto; }
-    .sidebar { width: 100%; min-height: auto; }
-    .history-section { display: none; }
+.btn-download-mini:hover {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
