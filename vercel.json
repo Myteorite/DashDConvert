@@ -1,10 +1,4 @@
 {
-  "functions": {
-    "api/convert.py": {
-      "runtime": "python3.12",
-      "maxDuration": 10
-    }
-  },
   "routes": [
     { "src": "/", "dest": "/static/index.html" },
     { "src": "/static/(.*)", "dest": "/static/$1" }
