@@ -14,41 +14,57 @@ const historyList = document.getElementById('historyList');
 
 let currentFile = null;
 
-// --- LOGIC RIWAYAT (LOCAL STORAGE) ---
+// --- LOGIC RIWAYAT ---
+
 function loadHistory() {
     const history = JSON.parse(localStorage.getItem('convertHistory')) || [];
     historyList.innerHTML = '';
 
     if (history.length === 0) {
-        historyList.innerHTML = '<li class="history-item" style="text-align:center; color: #64748b;">Belum ada riwayat.</li>';
+        historyList.innerHTML = '<li class="history-item" style="justify-content:center; color: #64748b;">Belum ada riwayat.</li>';
         return;
     }
 
-    // Tampilkan yang terbaru di atas
+    // Tampilkan riwayat (Terbaru di atas)
     history.slice().reverse().forEach(item => {
         const li = document.createElement('li');
         li.className = 'history-item';
+        
+        // Logika Link: Jika URL ada (dari sesi ini), pakai itu. Jika tidak, matikan tombol.
+        // Catatan: Blob URL akan mati saat refresh, jadi kita cek validitas sederhana
+        let downloadLink = item.fileUrl ? item.fileUrl : '#';
+        let disabledClass = item.fileUrl ? '' : 'style="opacity:0.5; cursor:not-allowed; border-color: gray; color: gray;" title="Link Kadaluarsa (Refresh)"';
+        let clickAction = item.fileUrl ? '' : 'onclick="alert(\'Link kadaluarsa setelah halaman direfresh.\'); return false;"';
+
         li.innerHTML = `
-            <div class="history-date">${item.date}</div>
-            <span class="history-name" title="${item.fileName}">${item.fileName}</span>
-            <span class="history-badge">${item.type}</span>
+            <div class="history-info">
+                <div class="history-date">${item.date}</div>
+                <span class="history-name" title="${item.fileName}">${item.fileName}</span>
+                <span class="history-badge">${item.type}</span>
+            </div>
+            <a href="${downloadLink}" download="${item.downloadName}" class="btn-download-mini" ${disabledClass} ${clickAction}>
+                <i class="fa-solid fa-download"></i>
+            </a>
         `;
         historyList.appendChild(li);
     });
 }
 
-function saveHistory(fileName, type) {
+// UPDATE: Menambahkan parameter fileUrl dan downloadName
+function saveHistory(fileName, downloadName, type, fileUrl) {
     const history = JSON.parse(localStorage.getItem('convertHistory')) || [];
     const now = new Date();
     const dateStr = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
     
     const newItem = {
         fileName: fileName,
+        downloadName: downloadName,
         type: type,
-        date: dateStr
+        date: dateStr,
+        fileUrl: fileUrl // Menyimpan Blob URL
     };
 
-    // Simpan maks 10 riwayat terakhir
+    // Simpan maks 10 riwayat
     history.push(newItem);
     if (history.length > 10) history.shift();
 
@@ -56,7 +72,6 @@ function saveHistory(fileName, type) {
     loadHistory();
 }
 
-// Perlu dibuat global atau dipasang event listener agar bisa diakses button
 window.clearHistory = function() {
     if(confirm('Hapus semua riwayat?')) {
         localStorage.removeItem('convertHistory');
@@ -101,7 +116,6 @@ function updateInstruction() {
     resetFile();
 }
 
-// Di HTML, fungsi dipanggil lewat onclick="resetFile()", jadi kita pasang ke window
 window.resetFile = function() {
     currentFile = null;
     dropZone.style.display = 'block';
@@ -164,22 +178,32 @@ convertBtn.addEventListener('click', async () => {
 
         if(response.ok) {
             const blob = await response.blob();
+            // Membuat URL permanen sementara (selama tab tidak ditutup/refresh)
             const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
             
+            // Tentukan ekstensi download
             let downloadExt = outputFormat.value;
             if (outputFormat.value === 'jpg' || outputFormat.value === 'png') {
                 downloadExt = 'zip';
             }
+            
+            const finalFileName = currentFile.name.replace(/\.[^/.]+$/, "") + '.' + downloadExt;
 
-            a.download = currentFile.name.replace(/\.[^/.]+$/, "") + '.' + downloadExt;
+            // Trigger Download Otomatis
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = finalFileName;
             document.body.appendChild(a);
             a.click();
             a.remove();
             
-            // --- SIMPAN KE RIWAYAT ---
-            saveHistory(currentFile.name, `${inputFormat.value.toUpperCase()} ➝ ${outputFormat.value.toUpperCase()}`);
+            // --- SIMPAN KE RIWAYAT DENGAN URL ---
+            saveHistory(
+                currentFile.name, 
+                finalFileName,
+                `${inputFormat.value.toUpperCase()} ➝ ${outputFormat.value.toUpperCase()}`,
+                url 
+            );
 
             btnText.innerText = "Selesai! Download dimulai.";
             btnText.style.display = 'block';
@@ -201,6 +225,10 @@ convertBtn.addEventListener('click', async () => {
         showError(error.message);
     }
 });
+
+// Bersihkan history lama saat reload karena URL Blob akan mati
+// Opsional: aktifkan baris di bawah jika ingin history hilang saat refresh agar user tidak bingung
+// localStorage.removeItem('convertHistory'); 
 
 // INIT
 updateOptions();
