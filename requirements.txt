@@ -1,4 +1,4 @@
 Flask==3.0.0
 werkzeug==3.0.1
-opencv-python-headless
-pdf2docx
+pypdf
+python-docx
