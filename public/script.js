@@ -1,31 +1,58 @@
+const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('fileInput');
+const fileInfo = document.getElementById('file-info');
+const filenameSpan = document.getElementById('filename');
+const removeBtn = document.getElementById('remove-btn');
 const convertBtn = document.getElementById('convert-btn');
+const statusContainer = document.getElementById('status-container');
 const statusText = document.getElementById('status-text');
 
 let currentFile = null;
 
-// Saat user memilih file
-fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-        currentFile = e.target.files[0];
-        if (currentFile.type === "application/pdf") {
-            statusText.innerText = "File terpilih: " + currentFile.name;
-            convertBtn.disabled = false;
-        } else {
-            alert("Harap pilih file PDF saja.");
-            fileInput.value = ''; // Reset
-            convertBtn.disabled = true;
-        }
-    }
+// Handle Drag & Drop
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', (e) => {
+    dropZone.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
 });
 
-// Saat tombol ditekan
+fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+function handleFiles(files) {
+    if (files.length > 0 && files[0].type === "application/pdf") {
+        currentFile = files[0];
+        filenameSpan.innerText = currentFile.name;
+        dropZone.style.display = 'none';
+        fileInfo.style.display = 'flex';
+        convertBtn.disabled = false;
+    } else {
+        alert("Hanya file PDF yang diperbolehkan.");
+    }
+}
+
+removeBtn.addEventListener('click', () => {
+    currentFile = null;
+    fileInput.value = '';
+    dropZone.style.display = 'block';
+    fileInfo.style.display = 'none';
+    convertBtn.disabled = true;
+    statusContainer.style.display = 'none';
+});
+
 convertBtn.addEventListener('click', async () => {
     if (!currentFile) return;
 
     convertBtn.disabled = true;
-    convertBtn.innerText = "Sedang Memproses...";
-    statusText.innerText = "Mengupload dan Mengonversi... Mohon tunggu.";
+    convertBtn.innerHTML = 'Sedang Memproses...';
+    statusContainer.style.display = 'block';
+    statusText.innerText = "Mengupload dan Mengonversi...";
+    statusText.style.color = "#f8fafc";
 
     const formData = new FormData();
     formData.append('file', currentFile);
@@ -37,32 +64,30 @@ convertBtn.addEventListener('click', async () => {
         });
 
         if (response.ok) {
-            statusText.innerText = "Sukses! Mengunduh file...";
-            
-            // Proses download otomatis
+            statusText.innerText = "Berhasil! Mengunduh...";
             const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
+            const downloadUrl = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
+            a.href = downloadUrl;
             a.download = currentFile.name.replace('.pdf', '.docx');
             document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
-            
-            // Reset UI
-            statusText.innerText = "Selesai. File telah diunduh.";
-            convertBtn.innerText = "Konversi File Lain";
-            convertBtn.disabled = false;
-            fileInput.value = ''; // Reset input
+            a.remove();
+
+            convertBtn.innerHTML = 'Selesai!';
+            setTimeout(() => {
+                convertBtn.innerHTML = 'Konversi Lagi <i class="fa-solid fa-arrow-right"></i>';
+                convertBtn.disabled = false;
+            }, 2000);
         } else {
-            const errData = await response.json();
-            throw new Error(errData.error || 'Gagal konversi');
+            const data = await response.json();
+            throw new Error(data.error || 'Gagal konversi');
         }
     } catch (error) {
         console.error(error);
         statusText.innerText = "Error: " + error.message;
+        statusText.style.color = "#ff4d4d";
+        convertBtn.innerHTML = 'Coba Lagi';
         convertBtn.disabled = false;
-        convertBtn.innerText = "Coba Lagi";
     }
 });
