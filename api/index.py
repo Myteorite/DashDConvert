@@ -1,11 +1,14 @@
 from flask import Flask, request, send_file, jsonify
 import os
+import convertapi
 from werkzeug.utils import secure_filename
-from pdf2docx import Converter
 
 app = Flask(__name__)
 
-# Konfigurasi folder upload sementara
+# --- MASUKKAN SECRET KEY ANDA DI SINI ATAU DI ENVIRONMENT VARIABLES VERCEL ---
+# Disarankan set di Vercel: Settings -> Environment Variables -> Key: CONVERT_API_SECRET
+convertapi.api_secret = os.environ.get('CONVERT_API_SECRET', 'GANTI_DENGAN_SECRET_KEY_ANDA_JIKA_TESTING_LOKAL')
+
 UPLOAD_FOLDER = '/tmp'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -20,39 +23,40 @@ def convert_file():
         return jsonify({'error': 'No selected file'}), 400
 
     if file:
-        filename = secure_filename(file.filename)
-        pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        # Simpan file PDF ke /tmp
-        file.save(pdf_path)
-        
-        # Tentukan nama output docx
-        docx_filename = filename.rsplit('.', 1)[0] + '.docx'
-        docx_path = os.path.join(app.config['UPLOAD_FOLDER'], docx_filename)
-
         try:
-            # Proses Konversi
-            cv = Converter(pdf_path)
-            cv.convert(docx_path, start=0, end=None)
-            cv.close()
+            filename = secure_filename(file.filename)
+            pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(pdf_path)
+            
+            # Tentukan nama output
+            docx_filename = filename.rsplit('.', 1)[0] + '.docx'
+            docx_path = os.path.join(app.config['UPLOAD_FOLDER'], docx_filename)
 
-            # Kirim file balik ke user
+            # --- PROSES MENGGUNAKAN CONVERT API ---
+            # Ini tidak memakan CPU/RAM Vercel, jadi sangat aman
+            result = convertapi.convert('docx', {
+                'File': pdf_path
+            }, from_format='pdf')
+            
+            # Simpan hasil dari API ke folder tmp
+            result.save_files(app.config['UPLOAD_FOLDER'])
+            
+            # Karena ConvertAPI mungkin mengubah nama file, kita pastikan pathnya benar
+            # Biasanya API mengembalikan nama file yang sama dengan ekstensi baru
+            
             return send_file(docx_path, as_attachment=True, download_name=docx_filename)
 
         except Exception as e:
             return jsonify({'error': str(e)}), 500
-        
+            
         finally:
-            # Bersihkan file dari /tmp untuk menghemat ruang
+            # Bersihkan file sampah
             if os.path.exists(pdf_path):
                 os.remove(pdf_path)
-            # File docx biasanya dihapus otomatis oleh OS di folder tmp, 
-            # atau bisa dihapus setelah dikirim (sedikit tricky di serverless sync).
+            # Opsional: Hapus docx jika perlu, tapi Vercel /tmp akan reset otomatis
 
-# Route default untuk memastikan API berjalan
 @app.route('/api/hello')
 def hello():
-    return "KullDConvert API is running!"
+    return "KullDConvert API is running (Lightweight Mode)!"
 
-# Handler untuk Vercel
 app.debug = True
