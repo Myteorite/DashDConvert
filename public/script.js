@@ -9,40 +9,33 @@ const statusText = document.getElementById('status-text');
 
 let currentFile = null;
 
-// Handle Drag & Drop Events
+// Drag & Drop
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropZone.addEventListener(eventName, preventDefaults, false);
 });
-
 function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
 
 dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-
 dropZone.addEventListener('drop', (e) => {
     dropZone.classList.remove('dragover');
-    const files = e.dataTransfer.files;
-    handleFiles(files);
+    handleFiles(e.dataTransfer.files);
 });
 
 fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
 function handleFiles(files) {
-    if (files.length > 0) {
-        if (files[0].type === "application/pdf") {
-            currentFile = files[0];
-            showFileUI(currentFile.name);
-        } else {
-            alert("Mohon upload file PDF saja.");
-        }
+    if (files.length > 0 && files[0].type === "application/pdf") {
+        currentFile = files[0];
+        filenameSpan.innerText = currentFile.name;
+        dropZone.style.display = 'none';
+        fileInfo.style.display = 'flex';
+        convertBtn.disabled = false;
+        statusContainer.style.display = 'none';
+        convertBtn.innerHTML = 'Konversi ke Word <i class="fa-solid fa-arrow-right"></i>';
+    } else {
+        alert("Mohon upload file PDF yang valid.");
     }
-}
-
-function showFileUI(name) {
-    filenameSpan.innerText = name;
-    dropZone.style.display = 'none';
-    fileInfo.style.display = 'flex';
-    convertBtn.disabled = false;
 }
 
 removeBtn.addEventListener('click', () => {
@@ -54,15 +47,14 @@ removeBtn.addEventListener('click', () => {
     statusContainer.style.display = 'none';
 });
 
-// Handle Conversion
 convertBtn.addEventListener('click', async () => {
     if (!currentFile) return;
 
-    // UI Updates
     convertBtn.disabled = true;
     convertBtn.innerHTML = 'Memproses...';
     statusContainer.style.display = 'block';
-    statusText.innerText = "Mengupload dan Mengonversi...";
+    statusText.innerText = "Mengupload & Konversi...";
+    statusText.style.color = "#f8fafc";
 
     const formData = new FormData();
     formData.append('file', currentFile);
@@ -74,28 +66,32 @@ convertBtn.addEventListener('click', async () => {
         });
 
         if (response.ok) {
-            statusText.innerText = "Selesai! Mengunduh...";
+            statusText.innerText = "Berhasil! Mengunduh...";
             const blob = await response.blob();
-            const downloadUrl = window.URL.createObjectURL(blob);
+            
+            // Trigger Download
+            const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = downloadUrl;
+            a.style.display = 'none';
+            a.href = url;
             a.download = currentFile.name.replace('.pdf', '.docx');
             document.body.appendChild(a);
             a.click();
-            a.remove();
+            window.URL.revokeObjectURL(url);
             
-            // Reset UI
+            convertBtn.innerHTML = 'Selesai!';
             setTimeout(() => {
                 convertBtn.innerHTML = 'Konversi Lagi <i class="fa-solid fa-arrow-right"></i>';
                 convertBtn.disabled = false;
-                statusText.innerText = "Berhasil!";
-            }, 1000);
+                statusText.innerText = "";
+            }, 2000);
         } else {
-            throw new Error('Gagal konversi');
+            const errData = await response.json();
+            throw new Error(errData.error || 'Gagal konversi');
         }
     } catch (error) {
         console.error(error);
-        statusText.innerText = "Terjadi kesalahan. Coba lagi.";
+        statusText.innerText = "Error: " + error.message;
         statusText.style.color = "#ff4d4d";
         convertBtn.disabled = false;
         convertBtn.innerHTML = 'Coba Lagi';
