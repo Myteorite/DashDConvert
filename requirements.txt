@@ -1,5 +1,5 @@
-fastapi==0.95.2
-uvicorn==0.22.0
-python-docx==0.8.11
-PyPDF2==3.0.1
-fpdf==1.7.2
+fastapi
+uvicorn
+python-docx
+PyPDF2
+fpdf
