@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KullDConvert | PDF to Word</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>KullDConvert</h1>
+            <p>Konversi dokumen PDF ke Word dengan cepat, aman, dan gratis.</p>
+        </header>
+
+        <main class="card">
+            <div class="drop-zone" id="drop-zone">
+                <div class="icon-container">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <h3>Drag & Drop file PDF di sini</h3>
+                <p>atau</p>
+                <label for="fileInput" class="browse-btn">Pilih File</label>
+                <input type="file" id="fileInput" accept=".pdf" hidden>
+            </div>
+
+            <div class="file-info" id="file-info" style="display: none;">
+                <i class="fa-regular fa-file-pdf"></i>
+                <span id="filename">dokumen.pdf</span>
+                <button id="remove-btn" class="remove-btn"><i class="fa-solid fa-times"></i></button>
+            </div>
+
+            <button id="convert-btn" class="convert-btn" disabled>
+                Konversi Sekarang <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <div class="status-container" id="status-container" style="display: none;">
+                <div class="loader"></div>
+                <p id="status-text">Sedang memproses...</p>
+            </div>
+        </main>
+
+        <footer>
+            &copy; 2025 KullDConvert Project.
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
