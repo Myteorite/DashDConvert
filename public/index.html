@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF to Word Converter</title>
+    <title>PDF to Word - Serverless</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
         <h1>Konversi Dokumen</h1>
-        <p class="subtitle">Ubah PDF ke Word menggunakan Serverless Python</p>
+        <p class="subtitle">PDF ke Word (DOCX) via Serverless Function</p>
 
-        <div class="file-upload-wrapper">
+        <div class="upload-box">
             <input type="file" id="fileInput" accept=".pdf" />
         </div>
 
@@ -23,7 +23,7 @@
         <div id="status"></div>
 
         <div class="footer">
-            Tugas Cloud Computing &bull; Vercel Serverless
+            Tugas Cloud Computing &bull; Vercel Python
         </div>
     </div>
 
@@ -33,29 +33,27 @@
             const status = document.getElementById('status');
             const btn = document.getElementById('convertBtn');
 
-            // Validasi: Cek ada file atau tidak
             if (fileInput.files.length === 0) {
-                status.innerHTML = "<span class='error'>⚠ Harap pilih file PDF terlebih dahulu!</span>";
+                status.innerHTML = "<span class='error'>⚠ Pilih file PDF dulu!</span>";
                 return;
             }
 
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
 
-            // Ubah tampilan tombol jadi Loading
+            // Ubah tombol jadi loading
             btn.disabled = true;
             btn.innerHTML = '<div class="spinner"></div> Memproses...';
-            status.innerText = "";
+            status.innerHTML = "";
 
             try {
-                // Panggil Backend (API Python)
+                // Panggil API Backend
                 const response = await fetch('/api/convert', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (response.ok) {
-                    // Proses Download
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -64,21 +62,16 @@
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
-                    
-                    status.innerHTML = "<span class='success'>✔ Berhasil! File terdownload otomatis.</span>";
+                    status.innerHTML = "<span class='success'>✔ Berhasil! File terdownload.</span>";
                 } else {
                     const err = await response.json();
                     status.innerHTML = `<span class='error'>❌ Gagal: ${err.error || "Server Error"}</span>`;
                 }
             } catch (error) {
-                console.error(error);
-                status.innerHTML = "<span class='error'>❌ Terjadi kesalahan koneksi.</span>";
+                status.innerHTML = "<span class='error'>❌ Error koneksi internet.</span>";
             } finally {
-                // Kembalikan tombol seperti semula
                 btn.disabled = false;
                 btn.innerText = "Konversi Sekarang";
-                // Reset input file (opsional)
-                fileInput.value = ""; 
             }
         }
     </script>
