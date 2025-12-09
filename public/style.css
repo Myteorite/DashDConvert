@@ -1,4 +1,4 @@
-/* Reset dasar agar tampilan konsisten di semua browser */
+/* Reset & Base Styles */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -12,14 +12,14 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #333;
+    padding: 20px;
 }
 
-/* Kotak Putih (Card) di Tengah */
+/* Card Container */
 .container {
     background: white;
-    padding: 40px;
-    border-radius: 15px;
+    padding: 2rem;
+    border-radius: 1rem;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     width: 100%;
     max-width: 450px;
@@ -27,49 +27,48 @@ body {
 }
 
 h1 {
-    font-size: 24px;
-    margin-bottom: 10px;
     color: #2d3748;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
 }
 
-p.subtitle {
+.subtitle {
     color: #718096;
-    font-size: 14px;
-    margin-bottom: 30px;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
 }
 
-/* Gaya Input File */
-.file-upload-wrapper {
-    margin-bottom: 20px;
-}
-
-input[type="file"] {
-    display: block;
-    width: 100%;
-    padding: 10px;
+/* File Input Styling */
+.upload-box {
     border: 2px dashed #cbd5e0;
-    border-radius: 8px;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
     background-color: #f7fafc;
-    cursor: pointer;
+    transition: all 0.3s;
 }
 
-input[type="file"]:hover {
+.upload-box:hover {
     border-color: #4299e1;
     background-color: #ebf8ff;
 }
 
-/* Gaya Tombol */
+input[type="file"] {
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Button Styling */
 .btn-primary {
     background-color: #3182ce;
     color: white;
     border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 16px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    width: 100%;
     font-weight: 600;
     cursor: pointer;
-    width: 100%;
-    transition: background 0.3s ease;
+    transition: background 0.3s;
 }
 
 .btn-primary:hover {
@@ -81,36 +80,35 @@ input[type="file"]:hover {
     cursor: not-allowed;
 }
 
-/* Status Message */
+/* Status Messages */
 #status {
-    margin-top: 20px;
-    font-size: 14px;
-    min-height: 20px;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    min-height: 1.5rem;
 }
 
-.success { color: #38a169; }
 .error { color: #e53e3e; }
+.success { color: #38a169; }
 
-/* Animasi Loading (Spinner) */
+/* Loading Spinner */
 .spinner {
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #3182ce;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    animation: spin 1s linear infinite;
     display: inline-block;
-    margin-right: 10px;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 0.5rem;
     vertical-align: middle;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    to { transform: rotate(360deg); }
 }
 
 .footer {
-    margin-top: 30px;
-    font-size: 12px;
+    margin-top: 2rem;
+    font-size: 0.75rem;
     color: #a0aec0;
 }
