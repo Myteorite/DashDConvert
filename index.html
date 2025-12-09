@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KullDConvert | Riwayat Aktif</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Myteorite/DashDConvert@main/public/style.css">
@@ -13,11 +15,70 @@
 
     <div class="sidebar">
         <div class="logo"><i class="fa-solid fa-bolt"></i> KullDConvert</div>
-         </div>
+        
+        <div class="control-group">
+            <label>Format Asal (Input)</label>
+            <select id="inputFormat">
+                <option value="pdf">PDF Document (.pdf)</option>
+                <option value="docx">Word Document (.docx)</option>
+                <option value="pptx">PowerPoint (.pptx)</option>
+                <option value="jpg">Gambar (.jpg)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Ubah Ke (Output)</label>
+            <select id="outputFormat">
+                </select>
+        </div>
+
+        <div class="history-section">
+            <div class="history-header">
+                <h4>Riwayat Terakhir</h4>
+                <button class="clear-btn" onclick="clearHistory()">Hapus Semua</button>
+            </div>
+            <ul id="historyList" class="history-list">
+                <li class="history-item" style="text-align:center; color: #64748b;">Belum ada riwayat.</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 1rem; font-size: 0.75rem; color: #64748b; text-align: center;">
+            &copy; 2025 KullDConvert
+        </div>
+    </div>
 
     <div class="main-content">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+
         <div class="card">
-             </div>
+            <h2 style="margin-bottom: 0.5rem;">Konversi Dokumen</h2>
+            <p style="color: #94a3b8; margin-bottom: 2rem;" id="instruction-text">Pilih format di menu samping.</p>
+
+            <div class="drop-zone" id="drop-zone">
+                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                <h3>Drag & Drop File</h3>
+                <label for="fileInput" class="btn-upload">Pilih File</label>
+                <input type="file" id="fileInput" hidden>
+            </div>
+
+            <div class="file-preview" id="file-preview">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-file-lines" style="color: #a855f7;"></i>
+                    <span id="filename">file.pdf</span>
+                </div>
+                <button onclick="resetFile()" style="background: none; border: none; color: #ff4d4d; cursor: pointer;">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+
+            <button id="convertBtn" class="convert-btn" disabled>
+                <span id="btnText">Konversi Sekarang</span>
+                <div class="loader" id="loader"></div>
+            </button>
+
+            <p class="error-msg" id="errorMsg"></p>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/gh/Myteorite/DashDConvert@main/public/script.js"></script>
