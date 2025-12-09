@@ -5,12 +5,10 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# Mengambil API Secret dari Environment Variable Vercel
-# Jika testing lokal (di laptop), ganti string kosong kedua dengan key Anda
+# Ganti '' dengan API Key ConvertAPI Anda jika testing lokal
 convertapi.api_secret = os.environ.get('CONVERT_API_SECRET', '')
 
-UPLOAD_FOLDER = '/tmp'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = '/tmp'
 
 @app.route('/api/convert', methods=['POST'])
 def convert_file():
@@ -28,30 +26,19 @@ def convert_file():
             pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(pdf_path)
             
-            # Kirim ke ConvertAPI
-            # Parameter 'docx' adalah format tujuan
-            result = convertapi.convert('docx', {
-                'File': pdf_path
-            }, from_format='pdf')
-            
-            # Simpan hasil download dari API ke folder tmp server
+            # Proses ConvertAPI
+            result = convertapi.convert('docx', { 'File': pdf_path }, from_format='pdf')
             saved_files = result.save_files(app.config['UPLOAD_FOLDER'])
-            
-            # Ambil path file hasil (biasanya file pertama di list)
             docx_path = saved_files[0]
-            docx_filename = os.path.basename(docx_path)
-
-            return send_file(docx_path, as_attachment=True, download_name=docx_filename)
+            
+            return send_file(docx_path, as_attachment=True, download_name=filename.replace('.pdf', '.docx'))
 
         except Exception as e:
             return jsonify({'error': str(e)}), 500
-            
         finally:
-            # Bersihkan file PDF asli untuk hemat ruang
             if os.path.exists(pdf_path):
                 os.remove(pdf_path)
 
-# Route untuk cek status
 @app.route('/api/hello')
 def hello():
-    return "API KullDConvert Siap!"
+    return "API Ready"
