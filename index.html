@@ -203,26 +203,6 @@
                     a.href = downloadUrl;
                     a.download = currentFile.name.replace('.pdf', '.docx');
                     document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    
-                    convertBtn.innerHTML = 'Selesai!';
-                    setTimeout(() => {
-                        convertBtn.innerHTML = 'Konversi Lagi <i class="fa-solid fa-arrow-right"></i>';
-                        convertBtn.disabled = false;
-                    }, 2000);
-                } else {
-                    const data = await response.json();
-                    throw new Error(data.error || 'Gagal konversi');
-                }
-            } catch (error) {
-                console.error(error);
-                statusText.innerText = "Error: " + error.message;
-                statusText.style.color = "#ff4d4d";
-                convertBtn.innerHTML = 'Coba Lagi';
-                convertBtn.disabled = false;
-            }
-        });
     </script>
 </body>
 </html>
