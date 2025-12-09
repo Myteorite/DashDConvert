@@ -3,58 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KullDConvert | PDF to Word</title>
-    <link rel="stylesheet" href="public/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>KullDConvert (No CSS)</title>
 </head>
 <body>
 
-    <div class="background-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
+    <h1>KullDConvert</h1>
+    <p>Upload file PDF untuk diubah menjadi Word.</p>
+    <hr>
+
+    <div id="upload-section">
+        <input type="file" id="fileInput" accept=".pdf">
+        <br><br>
+        <button id="convert-btn" disabled>Konversi ke Word</button>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>KullDConvert</h1>
-            <p>Ubah PDF ke Word tanpa ribet.</p>
-        </header>
-
-        <main class="card">
-            <div class="drop-zone" id="drop-zone">
-                <div class="icon-container">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                </div>
-                <h3>Drag & Drop file PDF</h3>
-                <p>atau</p>
-                <label for="fileInput" class="browse-btn">Pilih File</label>
-                <input type="file" id="fileInput" accept=".pdf" hidden>
-            </div>
-
-            <div class="file-info" id="file-info" style="display: none;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-regular fa-file-pdf" style="color: #ff4d4d;"></i>
-                    <span id="filename">file.pdf</span>
-                </div>
-                <button id="remove-btn" class="remove-btn"><i class="fa-solid fa-times"></i></button>
-            </div>
-
-            <button id="convert-btn" class="convert-btn" disabled>
-                Konversi ke Word <i class="fa-solid fa-arrow-right"></i>
-            </button>
-
-            <div class="status-container" id="status-container" style="display: none;">
-                <div class="loader"></div>
-                <p id="status-text">Sedang memproses...</p>
-            </div>
-        </main>
-
-        <footer>
-            &copy; 2025 KullDConvert Project.
-        </footer>
+    <div style="margin-top: 20px;">
+        <p id="status-text"></p>
     </div>
 
     <script src="public/script.js"></script>
+
 </body>
 </html>
